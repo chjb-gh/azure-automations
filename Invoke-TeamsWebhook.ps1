@@ -82,7 +82,7 @@ $(if($Fact3Name){@"
 }
 
 $linkButton = if($LinkName){@"
-    "potentialAction": [{
+    ,"potentialAction": [{
         "@type": "OpenUri",
         "name": "$LinkName",
         "targets": [{
@@ -107,7 +107,7 @@ $body = @"
         "activityImage": "",
         "markdown": true
         $Facts
-    }],$linkButton
+    }]$linkButton
 }
 "@
 
