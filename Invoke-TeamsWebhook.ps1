@@ -48,69 +48,75 @@ $LinkName = "Link to x"
 $LinkValue = "https://endpoint.microsoft.com/"
 #>
 
-$Facts = if($Fact1Name) {
-    @"
-,
-        "facts": [{
-            "name": "$Fact1Name",
-            "value": "$Fact1Value"
-        }$(if($Fact2Name){@"
-    ,{
-            "name": "$Fact2Name",
-            "value": "$Fact2Value"
-        }
-"@
-} else {""})
-
-$(if($Fact3Name){@"
-    ,{
-            "name": "$Fact2Name",
-            "value": "$Fact2Value"
-        }
-"@
-} else {""})$(if($LinkName) {
-    @"
-,{
-            "name": "$LinkName",
-            "value": "$LinkValue"
-        }
-"@
-} else {
-    ""
-})]
-"@
+$jsonBase = [ordered]@{
+    "@type" = "MessageCard";
+    "@context" = "http://schema.org/extensions";
+    "themeColor" = "$notificationColour";
+    "summary" = "Automation notification: $Category - $Title";
 }
 
-$linkButton = if($LinkName){@"
-    ,"potentialAction": [{
-        "@type": "OpenUri",
-        "name": "$LinkName",
-        "targets": [{
-            "os": "default",
-            "uri": "$LinkValue"
-        }]
-    }]
-"@
-} else {""}
 
+$facts = New-Object System.Collections.ArrayList
 
-$body = @"
-{
-    "@type": "MessageCard",
-    "@context": "http://schema.org/extensions",
-    "themeColor": "$notificationColour",
-    "summary": "Automation notification: $Category - $Title",
-    "sections": [{
-        "activityTitle": "Automation notification: $Category - $Title",
-        "activitySubtitle": "$Subtitle",
-        "activityText": "$Text",
-        "activityImage": "",
-        "markdown": true
-        $Facts
-    }]$linkButton
+if ($Fact1Name) {
+    $facts.Add([ordered]@{
+        "name" = "$Fact1Name";
+        "value" = "$Fact1Value";
+    })
 }
-"@
+
+if ($Fact2Name) {
+    $facts.Add([ordered]@{
+        "name" = "$Fact2Name";
+        "value" = "$Fact2Value";
+    })
+}
+
+if ($Fact3Name) {
+    $facts.Add([ordered]@{
+        "name" = "$Fact3Name";
+        "value" = "$Fact3Value";
+    })
+}
+
+if ($LinkName) {
+    $potentialAction = New-Object System.Collections.ArrayList
+
+    $potentialActionTargets = New-Object System.Collections.ArrayList
+
+    $potentialActionTargets.Add([ordered]@{
+        "os" = "default";
+        "uri" = "$LinkValue";
+    })
+
+    $potentialAction.Add([ordered]@{
+        "@type" = "OpenUri";
+        "name" = "$LinkName";
+        "targets" = $potentialActionTargets
+    })
+
+    $facts.Add([ordered]@{
+        "name" = "$LinkName";
+        "value" = "$LinkValue";
+    })
+
+    $jsonBase.Add("potentialAction",$potentialAction)
+}
+
+$sections = New-Object System.Collections.ArrayList
+
+$sections.Add([ordered]@{
+    "activityTitle" = "Automation notification: $Category - $Title"
+    "activitySubtitle" = "$Subtitle";
+    "activityText" = "$Text";
+    "activityImage" = "";
+    "markdown" = $true;
+    "facts" = $facts;
+})
+
+$jsonBase.Add("sections",$sections)
+
+$body = $jsonBase | Convertto-Json -Depth 10
 
 $response = Invoke-WebRequest -Method Post -Uri $uri -Body $body -UseBasicParsing
-
  
