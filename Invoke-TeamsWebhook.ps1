@@ -28,7 +28,7 @@ param
 
 
 # teams channel incoming webhook
-$uri = "https://xxxxx.webhook.office.com/webhookb2/xxxxxxxxxxx/IncomingWebhook/xxxxxxxxxxxxxxxxxxx/xxxxxxxxxxxxxxxxxx"
+$uri = "https://xxxxx.webhook.office.com/webhookb2/xxxxxxxxxxx/IncomingWebhook/xxxxxxxxxxxxxxxxxxx/xxxxxxxxxxxxxxxxx"
 
 #$servicePrincipalConnection = Get-AutomationConnection -Name "AzureRunAsConnection" -ErrorAction Stop
 $notificationColour = "b830e6"
